@@ -160,36 +160,9 @@ mvn spring-boot:run
 - **权限控制**: 限制脚本执行权限
 - **内容扫描**: 检测危险命令和恶意代码
 
-## 📚 文档说明
 
-- **[API接口文档](./API_DOCS.md)**: 详细的API接口说明
-- **[接口总览](./API_SUMMARY.md)**: API接口优先级和对应关系
-- **[对接指南](./INTEGRATION_GUIDE.md)**: 前后端对接实施指南
-- **[架构文档](./arch.md)**: 系统架构和设计说明
-- **[Postman测试](./CronJob_API_Tests.postman_collection.json)**: API接口测试集合
 
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
 
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 📞 联系方式
-
-- **作者**: Ruochen Chen
-- **邮箱**: [your-email@example.com]
-- **GitHub**: [https://github.com/Crc011220/cron](https://github.com/Crc011220/cron)
-
-## 🙏 致谢
-
-感谢所有为这个项目做出贡献的开发者！
-
----
-
-⭐ 如果这个项目对您有帮助，请给个星星支持一下！ 
