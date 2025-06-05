@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rc.mapper.JobLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.rc.domain.JobLog">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="jobId" column="job_id" jdbcType="BIGINT"/>
+            <result property="executionId" column="execution_id" jdbcType="VARCHAR"/>
+            <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+            <result property="duration" column="duration" jdbcType="INTEGER"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="output" column="output" jdbcType="VARCHAR"/>
+            <result property="errorMsg" column="error_msg" jdbcType="VARCHAR"/>
+            <result property="exitCode" column="exit_code" jdbcType="INTEGER"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,job_id,execution_id,
+        start_time,end_time,duration,
+        status,output,error_msg,
+        exit_code,created_at
+    </sql>
+</mapper>

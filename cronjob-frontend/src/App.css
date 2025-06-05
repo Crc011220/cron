@@ -1,0 +1,100 @@
+/* App.css */
+.demo-logo-vertical {
+  height: 32px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  border-radius: 6px;
+  position: relative;
+}
+
+.logo-icon {
+  color: white;
+  font-size: 16px;
+  margin-right: 6px;
+  animation: rotate 8s linear infinite;
+}
+
+.logo-text {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Logo hover effect */
+.logo-container:hover .logo-icon {
+  animation-duration: 1s;
+}
+
+.logo-container:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #9254de 100%);
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.upload-dragger {
+  background: #f5f5f5;
+  border: 2px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.upload-dragger:hover {
+  border-color: #1890ff;
+}
+
+.cron-builder {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.job-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.job-status-active {
+  color: #52c41a;
+}
+
+.job-status-inactive {
+  color: #ff4d4f;
+}
+
+.job-logs {
+  background: #000;
+  color: #00ff00;
+  padding: 16px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  max-height: 300px;
+  overflow-y: auto;
+}

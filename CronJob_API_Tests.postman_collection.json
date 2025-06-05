@@ -1,0 +1,878 @@
+{
+  "info": {
+    "name": "定时任务调度系统API测试",
+    "description": "CronJob API接口测试集合 - 基于前端实际功能设计",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8088/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "jobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "scriptId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "认证接口",
+      "item": [
+        {
+          "name": "用户登录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.token) {",
+                  "        pm.globals.set('token', responseJson.data.token);",
+                  "        console.log('Token已保存：', responseJson.data.token);",
+                  "    }",
+                  "    // 验证响应包含必要的认证信息",
+                  "    pm.test('响应包含用户信息', function () {",
+                  "        pm.expect(responseJson.data).to.have.property('user');",
+                  "        pm.expect(responseJson.data).to.have.property('permissions');",
+                  "        pm.expect(responseJson.data).to.have.property('menus');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取当前用户信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "刷新Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "用户登出",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "修改密码",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"admin123\",\n  \"newPassword\": \"newPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "脚本管理",
+      "item": [
+        {
+          "name": "上传脚本",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": [],
+                  "description": "脚本文件（支持多文件上传）"
+                },
+                {
+                  "key": "name",
+                  "value": "测试备份脚本",
+                  "type": "text",
+                  "description": "脚本名称"
+                },
+                {
+                  "key": "description",
+                  "value": "这是一个用于测试的数据库备份脚本",
+                  "type": "text",
+                  "description": "脚本描述"
+                },
+                {
+                  "key": "environment",
+                  "value": "bash",
+                  "type": "text",
+                  "description": "运行环境"
+                },
+                {
+                  "key": "parameters",
+                  "value": "--verbose\n--host localhost\n--port 3306",
+                  "type": "text",
+                  "description": "运行参数（每行一个）"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", "upload"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.scriptId) {",
+                  "        pm.globals.set('scriptId', responseJson.data.scriptId);",
+                  "        console.log('脚本ID已保存：', responseJson.data.scriptId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取脚本列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scripts?page=1&size=10&type=Shell脚本&keyword=备份",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "页码"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "每页数量"
+                },
+                {
+                  "key": "type",
+                  "value": "Shell脚本",
+                  "description": "脚本类型筛选"
+                },
+                {
+                  "key": "keyword",
+                  "value": "备份",
+                  "description": "搜索关键字"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.records && responseJson.data.records.length > 0) {",
+                  "        pm.globals.set('scriptId', responseJson.data.records[0].id);",
+                  "        console.log('使用第一个脚本ID：', responseJson.data.records[0].id);",
+                  "    }",
+                  "    // 验证分页数据格式",
+                  "    pm.test('响应包含分页信息', function () {",
+                  "        pm.expect(responseJson.data).to.have.property('records');",
+                  "        pm.expect(responseJson.data).to.have.property('total');",
+                  "        pm.expect(responseJson.data).to.have.property('current');",
+                  "        pm.expect(responseJson.data).to.have.property('size');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取脚本详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/{{scriptId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", "{{scriptId}}"]
+            }
+          }
+        },
+        {
+          "name": "在线创建脚本",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"在线创建的测试脚本\",\n  \"description\": \"通过在线编辑器创建的脚本\",\n  \"fileName\": \"test_script.sh\",\n  \"type\": \"Shell脚本\",\n  \"environment\": \"bash\",\n  \"parameters\": \"--verbose\",\n  \"content\": \"#!/bin/bash\\n\\n# 在线创建的测试脚本\\necho 'Hello from online editor!'\\n\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts"]
+            }
+          }
+        },
+        {
+          "name": "更新脚本",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"更新后的备份脚本\",\n  \"description\": \"更新后的脚本描述\",\n  \"environment\": \"bash\",\n  \"parameters\": \"--verbose\\n--compress\\n--host localhost\",\n  \"content\": \"#!/bin/bash\\n\\n# 更新后的脚本内容\\necho 'Updated script content'\\n\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts/{{scriptId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", "{{scriptId}}"]
+            }
+          }
+        },
+        {
+          "name": "删除脚本",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/{{scriptId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", "{{scriptId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "任务管理",
+      "item": [
+        {
+          "name": "获取任务列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs?page=1&size=10&status=active&keyword=备份",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "页码"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "每页数量"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "状态筛选：active/inactive/running/error"
+                },
+                {
+                  "key": "keyword",
+                  "value": "备份",
+                  "description": "搜索关键字"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    // 验证分页数据格式",
+                  "    pm.test('响应包含分页信息', function () {",
+                  "        pm.expect(responseJson.data).to.have.property('records');",
+                  "        pm.expect(responseJson.data).to.have.property('total');",
+                  "        pm.expect(responseJson.data).to.have.property('current');",
+                  "        pm.expect(responseJson.data).to.have.property('size');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "获取任务统计",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "stats"]
+            }
+          }
+        },
+        {
+          "name": "创建任务",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"每日数据备份任务\",\n  \"description\": \"每天凌晨2点执行数据库备份操作\",\n  \"cronExpr\": \"0 2 * * *\",\n  \"scriptId\": \"{{scriptId}}\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.jobId) {",
+                  "        pm.globals.set('jobId', responseJson.data.jobId);",
+                  "        console.log('任务ID已保存：', responseJson.data.jobId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新任务",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"更新后的备份任务\",\n  \"description\": \"更新后的任务描述\",\n  \"cronExpr\": \"0 3 * * *\",\n  \"scriptId\": \"{{scriptId}}\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}"]
+            }
+          }
+        },
+        {
+          "name": "启动任务",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "停止任务",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}/stop",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}", "stop"]
+            }
+          }
+        },
+        {
+          "name": "手动执行任务",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}", "execute"]
+            }
+          }
+        },
+        {
+          "name": "删除任务",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cron表达式",
+      "item": [
+        {
+          "name": "验证Cron表达式",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expression\": \"0 2 * * *\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cron/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["cron", "validate"]
+            }
+          }
+        },
+        {
+          "name": "获取下次执行时间",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expression\": \"0 2 * * *\",\n  \"count\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cron/next-runs",
+              "host": ["{{baseUrl}}"],
+              "path": ["cron", "next-runs"]
+            }
+          }
+        },
+        {
+          "name": "解析Cron表达式",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expression\": \"0 2 * * *\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cron/parse",
+              "host": ["{{baseUrl}}"],
+              "path": ["cron", "parse"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "日志管理",
+      "item": [
+        {
+          "name": "获取任务执行日志",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jobs/{{jobId}}/logs?page=1&size=10&status=success&startTime=2024-01-01&endTime=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["jobs", "{{jobId}}", "logs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "页码"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "每页数量"
+                },
+                {
+                  "key": "status",
+                  "value": "success",
+                  "description": "执行状态筛选"
+                },
+                {
+                  "key": "startTime",
+                  "value": "2024-01-01",
+                  "description": "开始时间"
+                },
+                {
+                  "key": "endTime",
+                  "value": "2024-12-31",
+                  "description": "结束时间"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const responseJson = pm.response.json();",
+                  "    // 验证分页数据格式",
+                  "    pm.test('响应包含分页信息', function () {",
+                  "        pm.expect(responseJson.data).to.have.property('records');",
+                  "        pm.expect(responseJson.data).to.have.property('total');",
+                  "        pm.expect(responseJson.data).to.have.property('current');",
+                  "        pm.expect(responseJson.data).to.have.property('size');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "系统统计",
+      "item": [
+        {
+          "name": "获取系统统计信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats"]
+            }
+          }
+        },
+        {
+          "name": "获取执行趋势",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/trends?period=day&days=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "trends"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "day",
+                  "description": "统计周期：day/week/month"
+                },
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "最近天数"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "系统管理（管理员）",
+      "item": [
+        {
+          "name": "用户管理",
+          "item": [
+            {
+              "name": "获取用户列表",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/system/users?page=1&size=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["system", "users"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "创建用户",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"email\": \"test@example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/system/users",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["system", "users"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "角色管理",
+          "item": [
+            {
+              "name": "获取角色列表",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/system/roles",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["system", "roles"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "权限管理",
+          "item": [
+            {
+              "name": "获取权限列表",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/system/permissions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["system", "permissions"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "系统监控（管理员）",
+      "item": [
+        {
+          "name": "获取系统状态",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitor/system",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitor", "system"]
+            }
+          }
+        },
+        {
+          "name": "获取执行统计",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitor/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitor", "stats"]
+            }
+          }
+        },
+        {
+          "name": "获取资源使用情况",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitor/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitor", "resources"]
+            }
+          }
+        },
+        {
+          "name": "获取执行历史",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitor/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitor", "history"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 自动添加时间戳",
+          "pm.globals.set('timestamp', new Date().getTime());",
+          "",
+          "// 检查token是否存在，如果不存在则提示",
+          "const token = pm.globals.get('token');",
+          "if (!token && !pm.request.url.path.includes('auth/login')) {",
+          "    console.warn('警告：未找到认证token，请先执行登录接口');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 通用响应验证",
+          "pm.test('响应状态码为200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('响应时间小于3秒', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+          "});",
+          "",
+          "// 验证响应格式",
+          "if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "    pm.test('响应包含必要字段', function () {",
+          "        const jsonData = pm.response.json();",
+          "        pm.expect(jsonData).to.have.property('code');",
+          "        pm.expect(jsonData).to.have.property('message');",
+          "    });",
+          "",
+          "    pm.test('业务状态码正确', function () {",
+          "        const jsonData = pm.response.json();",
+          "        pm.expect(jsonData.code).to.equal(200);",
+          "    });",
+          "}",
+          "",
+          "// 记录执行结果",
+          "console.log('接口：', pm.request.method, pm.request.url.toString());",
+          "console.log('响应时间：', pm.response.responseTime + 'ms');",
+          "console.log('响应状态：', pm.response.status);"
+        ]
+      }
+    }
+  ]
+}

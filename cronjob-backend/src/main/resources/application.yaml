@@ -1,0 +1,48 @@
+server:
+  port: 8088
+  
+spring:
+  application:
+    name: cronjob-backend
+    
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/cron-db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    # 开启驼峰命名自动映射
+    map-underscore-to-camel-case: true
+    # 日志实现
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 主键策略：自增
+      id-type: auto
+      # 逻辑删除字段
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      # 自动填充配置
+      insert-strategy: not_null
+      update-strategy: not_null
+  # XML文件位置
+  mapper-locations: classpath*:mapper/*.xml
+  # 实体类包路径
+  type-aliases-package: com.rc.domain
+  
+# 日志配置
+logging:
+  level:
+    com.rc: debug
+    com.rc.mapper: debug
+    com.baomidou.mybatisplus: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./logs/cronjob-backend.log

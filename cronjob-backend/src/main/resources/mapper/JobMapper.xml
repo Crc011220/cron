@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rc.mapper.JobMapper">
+
+    <resultMap id="BaseResultMap" type="com.rc.domain.Job">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="cronExpr" column="cron_expr" jdbcType="VARCHAR"/>
+            <result property="scriptId" column="script_id" jdbcType="BIGINT"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="successCount" column="success_count" jdbcType="INTEGER"/>
+            <result property="failureCount" column="failure_count" jdbcType="INTEGER"/>
+            <result property="lastRunTime" column="last_run_time" jdbcType="TIMESTAMP"/>
+            <result property="nextRunTime" column="next_run_time" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,description,
+        cron_expr,script_id,status,
+        success_count,failure_count,last_run_time,
+        next_run_time,created_at,updated_at
+    </sql>
+</mapper>
